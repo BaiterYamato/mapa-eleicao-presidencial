@@ -3,7 +3,7 @@
 if (!requireNamespace("pacman", quietly = TRUE)) {
   install.packages("pacman")
 }
-pacman::p_load(readxl,geobr,tidyverse,sf)
+pacman::p_load(readxl,geobr,tidyverse,sf,rChoiceDialogs)
 
 
 
@@ -16,6 +16,20 @@ mun <- left_join(mun, dados, by= c("code_muni" = "id_municipio"))
 
 mun2 <-mun %>% mutate(perda = PT_2014-PT_2018)
 
+
+choosepath <- function() {
+  testpath<-print(interactive())
+  if (testpath == TRUE) {
+  
+    path <- rchoose.dir() 
+  } else {
+  
+    path <- "export"
+  }
+  return(path)
+}
+
+path <- choosepath()
 
 ## Plot do mapa 2014
 ggplot()+ 
@@ -30,7 +44,7 @@ ggsave(
   "mapa2014.png",
   plot = last_plot(),
   device = "png",
-  path = "export",
+  path = path,
   scale = 1,
   width = NA,
   height = NA,
@@ -53,7 +67,7 @@ ggsave(
   "mapa2018.png",
   plot = last_plot(),
   device = "png",
-  path = "export",
+  path = path,
   scale = 1,
   width = NA,
   height = NA,
