@@ -1,13 +1,13 @@
 ### MAPA ELEICAO PRESIDENTE ###
 
+## Carregamento pacote
 if (!requireNamespace("pacman", quietly = TRUE)) {
   install.packages("pacman")
 }
-pacman::p_load(readxl,geobr,tidyverse,sf,rChoiceDialogs,feather)
+pacman::p_load(readxl,geobr,tidyverse,sf,rChoiceDialogs,classInt)
 
-##teste branch leonardo
-##teste branch silvio
 
+## carregamento dados
 dados <- read_excel("data/eleicaoPresCidade.xlsx",sheet = "Planilha3")
 
 if (!file.exists("data/est.Rdata")){
@@ -23,12 +23,16 @@ if (!file.exists("data/mun.Rdata")){
   load("data/mun.Rdata")
 }
 
-#
-mun2 <- left_join(mun, dados, by= c("code_muni" = "id_municipio"))
 
-#mun2 <-mun %>% mutate(perda = PT_2014-PT_2018)
+## transformacao dados
+mun<-subset(mun,code_muni != 4300001 )
+mun<-subset(mun,code_muni != 4300002 )
+
+mun <- left_join(mun, dados, by= c("code_muni" = "id_municipio"))
+mun <- mun %>% mutate(perda = PT_2014-PT_2018)
 
 
+## funcao path para export
 choosepath <- function() {
   if (interactive()) {
   
@@ -41,6 +45,7 @@ choosepath <- function() {
 }
 
 path <- choosepath()
+
 
 ## Plot do mapa 2014
 ggplot()+ 
@@ -65,6 +70,7 @@ ggsave(
   bg = NULL
 )
 
+
 ## plot do mapa 2018
 ggplot()+ 
   geom_sf(data=mun2, aes(fill= PercPT2018),color='transparent')+
@@ -88,6 +94,18 @@ ggsave(
   bg = NULL
 )
 
-##
+
+## plot mapa perda de votos do PT
+
 #ggplot() + geom_sf(data=mun2, aes(fill= perda),color = 'transparent')+
 #  scale_fill_gradient2(low = "#297D1C", mid = "white", high = "#E62339", midpoint = 0)
+
+breaks_qt <- classIntervals(mun2$perda, n = 5, style = "quantile")
+breaks_qt
+mun2 <- mutate(mun2, perda_cat = cut(perda, breaks_qt$brks)) 
+
+ggplot()+ 
+  geom_sf(data=mun2,aes(fill=perda_cat),color='transparent')+
+  scale_fill_brewer(palette = "RdYlGn")+
+  geom_sf(fill='transparent',color='#F6F9FF',data=est, size=.5)+
+  theme_void()
