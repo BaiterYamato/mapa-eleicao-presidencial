@@ -5,8 +5,8 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
 }
 pacman::p_load(readxl,geobr,tidyverse,sf,rChoiceDialogs,feather)
 
-
-#
+##teste branch silvio
+####
 dados <- read_excel("data/eleicaoPresCidade.xlsx",sheet = "Planilha3")
 
 if (!file.exists("data/est.Rdata")){
